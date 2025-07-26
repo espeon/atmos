@@ -10,22 +10,32 @@ use crate::{
 pub mod iterator;
 pub mod node;
 
+#[cfg(test)]
+pub mod tests;
+
 #[derive(Debug, Clone)]
 pub struct Mst {
-    pub root: cid::Cid,
+    pub root: Option<cid::Cid>,
     pub nodes: DashMap<cid::Cid, MstNode>,
 }
 
 impl Mst {
-    pub fn new(root: Cid) -> Self {
+    pub fn new(root: Option<Cid>) -> Self {
         Mst {
             root,
             nodes: DashMap::new(),
         }
     }
 
-    pub fn root(&self) -> &Cid {
-        &self.root
+    pub fn empty() -> Self {
+        Mst {
+            root: None,
+            nodes: DashMap::new(),
+        }
+    }
+
+    pub fn root(&self) -> Option<&Cid> {
+        self.root.as_ref()
     }
 
     pub fn get_node(&self, cid: &cid::Cid) -> Option<MstNode> {
@@ -59,7 +69,7 @@ impl TryFrom<CarImporter> for Mst {
             .map_err(|_| "decoding cbor failed for the commit")?;
 
         // create a new Mst with the root
-        let mst = Mst::new(commit_cid.data);
+        let mst = Mst::new(Some(commit_cid.data));
 
         for node in importer.get_mst_nodes() {
             // look up the node in the importer

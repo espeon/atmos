@@ -3,11 +3,13 @@ use sha2::Digest;
 
 use crate::mst::Mst;
 
+#[derive(Debug)]
 pub struct MstIterator<'a> {
     mst: &'a Mst,
     stack: Vec<StackItem>, // (cid, depth, prefix)
 }
 
+#[derive(Debug)]
 enum StackItem {
     VisitNode { cid: Cid, prefix: String },
     YieldEntry { key: String, cid: Cid },
@@ -15,23 +17,26 @@ enum StackItem {
 
 impl<'a> MstIterator<'a> {
     pub fn new(mst: &'a Mst) -> Self {
-        let root_cid = mst.root.clone();
-        Self {
-            mst,
-            stack: vec![StackItem::VisitNode {
+        let stack = if let Some(root_cid) = mst.root {
+            vec![StackItem::VisitNode {
                 cid: root_cid,
                 prefix: "".to_string(),
-            }],
-        }
+            }]
+        } else {
+            vec![]
+        };
+
+        Self { mst, stack }
     }
 
     pub fn seek(&mut self, target: &str) {
         // Clear the stack and start fresh
         self.stack.clear();
 
-        // Start from root with the target key
-        let root_cid = self.mst.root;
-        self.seek_in_subtree(root_cid.clone(), String::new(), target);
+        // Start from root with the target key if root exists
+        if let Some(root_cid) = self.mst.root {
+            self.seek_in_subtree(root_cid, String::new(), target);
+        }
     }
 
     fn seek_in_subtree(&mut self, cid: Cid, prefix: String, target: &str) {
