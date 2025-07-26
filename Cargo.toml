@@ -1,0 +1,22 @@
+[package]
+name = "atmos"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "mistycar"
+path = "src/main.rs"
+
+[dependencies]
+ipld-core = "0.4.2"
+serde_ipld_dagcbor = "0.6.3"
+serde_ipld_dagjson = "0.2"
+multihash = "0.19"
+cid = "0.11"
+sha2 = "0.10"
+iroh-car = "0.5"
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+bytes = "1.0"
+futures = "0.3"
+dashmap = "6.1.0"
