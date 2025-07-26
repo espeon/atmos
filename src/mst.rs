@@ -1,6 +1,5 @@
 use cid::Cid;
 use dashmap::DashMap;
-use sha2::{Digest, Sha256};
 
 use crate::{
     CarImporter,
@@ -77,25 +76,4 @@ impl TryFrom<CarImporter> for Mst {
 
         Ok(mst)
     }
-}
-
-fn compute_key_depth(key: &[u8]) -> usize {
-    let mut hasher = Sha256::new();
-    hasher.update(key);
-    let digest = hasher.finalize(); // [u8; 32]
-
-    let mut depth = 0;
-
-    for byte in digest {
-        for shift in (0..8).step_by(2) {
-            let two_bits = (byte >> (6 - shift)) & 0b11;
-            if two_bits == 0 {
-                depth += 1;
-            } else {
-                return depth;
-            }
-        }
-    }
-
-    depth
 }

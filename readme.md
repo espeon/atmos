@@ -1,5 +1,5 @@
 # Atmos
-Light Atproto-style merkle tree implementation in Rust.
+Light Atproto-style merkle search tree implementation in Rust.
 
 # Example Usage
 

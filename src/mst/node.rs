@@ -50,7 +50,7 @@ impl TryFrom<Ipld> for MstNode {
                             let leaf = MstNodeLeaf::try_from(entry);
                             match leaf {
                                 Ok(leaf) => Ok(leaf),
-                                Err(e) => Err(()),
+                                Err(_) => Err(()),
                             }
                         })
                         .collect::<Result<Vec<MstNodeLeaf>, _>>()
