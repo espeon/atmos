@@ -1,12 +1,13 @@
 pub mod car;
 pub mod commit;
+pub mod error;
 pub mod mst;
 
 // Re-export the main types for easier access
 pub use car::{CarBuilder, CarImporter};
+pub use error::{AtmosError, Result};
 
 // Re-export commonly used types from dependencies
-pub use anyhow::Result;
 pub use bytes::Bytes;
 pub use cid::Cid;
 pub use ipld_core::ipld::Ipld;
@@ -15,7 +16,7 @@ pub use ipld_core::ipld::Ipld;
 pub mod prelude {
     pub use crate::car::utils::{create_test_ipld, load_car_file, save_car_file};
     pub use crate::car::{CarBuilder, CarImporter};
-    pub use anyhow::Result;
+    pub use crate::error::{AtmosError, Result};
     pub use bytes::Bytes;
     pub use cid::Cid;
     pub use ipld_core::ipld::Ipld;

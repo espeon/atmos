@@ -6,7 +6,7 @@ use multihash::Multihash;
 use sha2::Digest;
 
 use crate::{
-    Bytes, CarBuilder, CarImporter,
+    AtmosError, Bytes, CarBuilder, CarImporter,
     mst::{
         Mst,
         node::{MstNode, MstNodeLeaf},
@@ -246,10 +246,10 @@ mod tests {
 
         let result = Mst::try_from(importer);
         assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "Car importer must have one root for the commit"
-        );
+        match result.unwrap_err() {
+            AtmosError::InvalidRootCount => {}
+            _ => panic!("Expected InvalidRootCount error"),
+        }
     }
 
     #[tokio::test]
@@ -268,7 +268,10 @@ mod tests {
 
         let result = Mst::try_from(importer);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "decoding cbor failed for the commit");
+        match result.unwrap_err() {
+            AtmosError::CommitParsing { .. } => {}
+            _ => panic!("Expected CommitParsing error"),
+        }
     }
 
     #[tokio::test]
@@ -279,10 +282,10 @@ mod tests {
 
         let result = Mst::try_from(importer);
         assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "couldn't get cbor importer, either invalid cbor or root doesn't exist"
-        );
+        match result.unwrap_err() {
+            AtmosError::CommitParsing { .. } => {}
+            _ => panic!("Expected CommitParsing error"),
+        }
     }
 
     #[tokio::test]

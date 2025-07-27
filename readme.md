@@ -4,20 +4,17 @@ Light Atproto-style merkle search tree implementation in Rust.
 # Example Usage
 
 ```rs
-use atmos::{Bytes, CarImporter, mst::Mst};
+use atmos::{Bytes, CarImporter, Result, mst::Mst};
 
 #[tokio::main]
-async fn main() -> Result<(), String> {
+async fn main() -> Result<()> {
     let repo_car_path = "repo.car";
-    let repo_car_bytes =
-        std::fs::read(repo_car_path).map_err(|e| format!("Failed to read CAR file: {}", e))?;
+    let repo_car_bytes = std::fs::read(repo_car_path)?;
 
     let repo_car_bytes: Bytes = Bytes::from(repo_car_bytes);
 
     let mut car = CarImporter::new();
-    car.import_from_bytes(repo_car_bytes)
-        .await
-        .map_err(|e| format!("Failed to import CAR file: {}", e))?;
+    car.import_from_bytes(repo_car_bytes).await?;
 
     println!(
         "Root CIDs: {:?}, {} items long",

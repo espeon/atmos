@@ -1,3 +1,4 @@
+use crate::error::AtmosError;
 use ipld_core::ipld::Ipld;
 
 #[derive(Clone, Debug)]
@@ -33,8 +34,8 @@ impl MstNode {
 }
 
 impl TryFrom<Ipld> for MstNode {
-    type Error = ();
-    fn try_from(node: Ipld) -> Result<Self, ()> {
+    type Error = AtmosError;
+    fn try_from(node: Ipld) -> Result<Self, AtmosError> {
         match node {
             Ipld::Map(map) => {
                 let l = if let Some(Ipld::Link(cid)) = map.get("l") {
@@ -46,35 +47,28 @@ impl TryFrom<Ipld> for MstNode {
                 let e = if let Some(Ipld::List(entries)) = map.get("e") {
                     entries
                         .iter()
-                        .map(|entry| {
-                            let leaf = MstNodeLeaf::try_from(entry);
-                            match leaf {
-                                Ok(leaf) => Ok(leaf),
-                                Err(_) => Err(()),
-                            }
-                        })
-                        .collect::<Result<Vec<MstNodeLeaf>, _>>()
-                        .map_err(|_| ())?
+                        .map(|entry| MstNodeLeaf::try_from(entry))
+                        .collect::<Result<Vec<MstNodeLeaf>, _>>()?
                 } else {
-                    return Err(());
+                    return Err(AtmosError::missing_field("e"));
                 };
 
                 Ok(MstNode { l, e })
             }
-            _ => Err(()),
+            _ => Err(AtmosError::invalid_ipld("Expected IPLD map for MstNode")),
         }
     }
 }
 
 impl TryFrom<&Ipld> for MstNodeLeaf {
-    type Error = &'static str;
+    type Error = AtmosError;
     fn try_from(entry: &Ipld) -> Result<Self, Self::Error> {
         match entry {
             Ipld::Map(map) => {
                 let v = if let Some(Ipld::Link(v_cid)) = map.get("v") {
                     *v_cid
                 } else {
-                    return Err("Missing or invalid 'v' field in MstNodeLeaf");
+                    return Err(AtmosError::missing_field("v"));
                 };
 
                 let t = if let Some(Ipld::Link(t_cid)) = map.get("t") {
@@ -85,22 +79,24 @@ impl TryFrom<&Ipld> for MstNodeLeaf {
 
                 let p = map
                     .get("p")
-                    .ok_or("Missing 'p' field in MstNodeLeaf")?
+                    .ok_or_else(|| AtmosError::missing_field("p"))?
                     .to_owned()
                     .try_into()
-                    .map_err(|_| "Invalid 'p' field in MstNodeLeaf")?;
+                    .map_err(|_| AtmosError::invalid_field("p", "must be valid integer"))?;
 
                 let k = map
                     .get("k")
-                    .ok_or("Missing 'k' field in MstNodeLeaf")?
+                    .ok_or_else(|| AtmosError::missing_field("k"))?
                     .to_owned();
                 let k: crate::Bytes = <Ipld as TryInto<Vec<u8>>>::try_into(k)
                     .map(|b| crate::Bytes::copy_from_slice(&b))
-                    .map_err(|_| "Invalid 'k' field in MstNodeLeaf")?;
+                    .map_err(|_| AtmosError::invalid_field("k", "must be valid bytes"))?;
 
                 Ok(MstNodeLeaf { p, k, v, t })
             }
-            _ => panic!("Invalid MstNodeLeaf format"),
+            _ => Err(AtmosError::invalid_ipld(
+                "Expected IPLD map for MstNodeLeaf",
+            )),
         }
     }
 }

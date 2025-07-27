@@ -148,12 +148,6 @@ impl<'a> Into<MstIterator<'a>> for &'a Mst {
     }
 }
 
-#[derive(Debug)]
-pub enum MstIteratorError {
-    NodeNotFound(Cid),
-    InvalidUtf8,
-}
-
 impl<'a> Iterator for MstIterator<'a> {
     type Item = (String, Cid);
 

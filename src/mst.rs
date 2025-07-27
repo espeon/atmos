@@ -4,6 +4,7 @@ use dashmap::DashMap;
 use crate::{
     CarImporter,
     commit::ATProtoCommit,
+    error::{AtmosError, Result},
     mst::{iterator::MstIterator, node::MstNode},
 };
 
@@ -52,35 +53,41 @@ impl Mst {
 }
 
 impl TryFrom<CarImporter> for Mst {
-    type Error = &'static str;
+    type Error = AtmosError;
 
-    fn try_from(importer: CarImporter) -> Result<Self, Self::Error> {
+    fn try_from(importer: CarImporter) -> Result<Self> {
         // car importer must have at least one root
         let root_cid = importer
             .roots()
             .first()
-            .ok_or("Car importer must have one root for the commit")?
+            .ok_or(AtmosError::InvalidRootCount)?
             .clone();
 
         let commit_cid: ATProtoCommit = importer
             .decode_cbor(&root_cid)
-            .map_err(|_| "couldn't get cbor importer, either invalid cbor or root doesn't exist")?
+            .map_err(|_| {
+                AtmosError::commit_parsing(
+                    "couldn't get cbor importer, either invalid cbor or root doesn't exist",
+                )
+            })?
             .try_into()
-            .map_err(|_| "decoding cbor failed for the commit")?;
+            .map_err(|_| AtmosError::commit_parsing("decoding cbor failed for the commit"))?;
 
         // create a new Mst with the root
         let mst = Mst::new(Some(commit_cid.data));
 
         for node in importer.get_mst_nodes() {
             // look up the node in the importer
-            let block = importer.decode_cbor(&node).map_err(
-                |_| "couldn't get cbor importer, either invalid cbor or node doesn't exist",
-            )?;
+            let block = importer.decode_cbor(&node).map_err(|_| {
+                AtmosError::mst(
+                    "couldn't get cbor importer, either invalid cbor or node doesn't exist",
+                )
+            })?;
             mst.insert_node(
                 node,
-                block
-                    .try_into()
-                    .map_err(|_| "Failed to convert block to MstNode")?,
+                block.try_into().map_err(|_| {
+                    AtmosError::node_conversion("Failed to convert block to MstNode")
+                })?,
             );
         }
 

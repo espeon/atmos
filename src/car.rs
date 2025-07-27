@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow};
+use crate::error::{AtmosError, Result};
 use bytes::Bytes;
 use cid::Cid;
 use ipld_core::ipld::Ipld;
@@ -74,7 +74,7 @@ impl CarImporter {
     pub fn decode_cbor(&self, cid: &Cid) -> Result<Ipld> {
         let data = self
             .get_block(cid)
-            .ok_or_else(|| anyhow!("Block not found for CID: {}", cid))?;
+            .ok_or_else(|| AtmosError::block_not_found(cid))?;
 
         let ipld: Ipld = dagcbor::from_slice(data)?;
         Ok(ipld)
@@ -84,7 +84,7 @@ impl CarImporter {
     pub fn decode_json(&self, cid: &Cid) -> Result<Ipld> {
         let data = self
             .get_block(cid)
-            .ok_or_else(|| anyhow!("Block not found for CID: {}", cid))?;
+            .ok_or_else(|| AtmosError::block_not_found(cid))?;
 
         let ipld: Ipld = dagjson::from_slice(data)?;
         Ok(ipld)
