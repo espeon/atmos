@@ -1,13 +1,13 @@
 use crate::error::AtmosError;
 use ipld_core::ipld::Ipld;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct MstNode {
     pub l: Option<cid::Cid>,
     pub e: Vec<MstNodeLeaf>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct MstNodeLeaf {
     /// prefix len
     pub p: usize,

@@ -6,6 +6,16 @@ pub mod mst;
 // Re-export the main types for easier access
 pub use car::{CarBuilder, CarImporter};
 pub use error::{AtmosError, Result};
+pub use mst::storage::{
+    GlobalStats, MemoryMstStorage, MstStorage, MultiTenantConfig, MultiTenantConfigBuilder,
+    MultiTenantMstStorage, PdsStorage, RepoId, RepoStats, StorageBackend, StorageWrapper,
+};
+
+#[cfg(feature = "fjall")]
+pub use mst::storage::{
+    CompressionAlgorithm, CompressionConfig, FjallMstStorage, FjallStorageConfig,
+    SerializationFormat,
+};
 
 // Re-export commonly used types from dependencies
 pub use bytes::Bytes;
@@ -17,6 +27,16 @@ pub mod prelude {
     pub use crate::car::utils::{create_test_ipld, load_car_file, save_car_file};
     pub use crate::car::{CarBuilder, CarImporter};
     pub use crate::error::{AtmosError, Result};
+    pub use crate::mst::storage::{
+        GlobalStats, MemoryMstStorage, MstStorage, MultiTenantConfig, MultiTenantConfigBuilder,
+        MultiTenantMstStorage, PdsStorage, RepoId, RepoStats, StorageBackend, StorageWrapper,
+    };
+
+    #[cfg(feature = "fjall")]
+    pub use crate::mst::storage::{
+        CompressionAlgorithm, CompressionConfig, FjallMstStorage, FjallStorageConfig,
+        SerializationFormat,
+    };
     pub use bytes::Bytes;
     pub use cid::Cid;
     pub use ipld_core::ipld::Ipld;
