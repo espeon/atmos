@@ -10,7 +10,7 @@
 //! - Performance monitoring and statistics
 //! - Integration with AT Protocol patterns
 
-use atmos::{
+use atmst::{
     Bytes, Cid, MstStorage, Result,
     mst::{
         node::{MstNode, MstNodeLeaf},
@@ -19,7 +19,7 @@ use atmos::{
 };
 
 #[cfg(feature = "fjall")]
-use atmos::{CompressionAlgorithm, FjallStorageConfig, SerializationFormat};
+use atmst::{CompressionAlgorithm, FjallStorageConfig, SerializationFormat};
 
 use futures::future::try_join_all;
 use multihash::Multihash;
@@ -241,7 +241,7 @@ async fn high_scale_simulation() -> Result<()> {
                     repo.insert_node(cid, node).await?;
                 }
 
-                Ok::<_, atmos::AtmosError>(user_did)
+                Ok::<_, atmst::AtmosError>(user_did)
             }
         })
         .collect();
@@ -329,7 +329,7 @@ async fn persistent_storage_example() -> Result<()> {
     use tempfile::TempDir;
 
     let temp_dir = TempDir::new()
-        .map_err(|e| atmos::AtmosError::mst(format!("Failed to create temp dir: {}", e)))?;
+        .map_err(|e| atmst::AtmosError::mst(format!("Failed to create temp dir: {}", e)))?;
 
     let fjall_config = FjallStorageConfig::new()
         .with_cache(true, 1000)
@@ -474,7 +474,7 @@ async fn concurrent_operations_test() -> Result<()> {
                     }
                 }
 
-                Ok::<(String, usize), atmos::AtmosError>((user_did, operation_count))
+                Ok::<(String, usize), atmst::AtmosError>((user_did, operation_count))
             })
         })
         .collect();

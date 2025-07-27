@@ -8,7 +8,7 @@
 //! - Monitor storage statistics
 
 #[cfg(feature = "fjall")]
-use atmos::{
+use atmst::{
     Bytes, CarBuilder, Cid, Result,
     mst::{
         Mst,
@@ -18,7 +18,7 @@ use atmos::{
 };
 
 #[cfg(feature = "fjall")]
-use atmos::{CompressionAlgorithm, FjallMstStorage, FjallStorageConfig, SerializationFormat};
+use atmst::{CompressionAlgorithm, FjallMstStorage, FjallStorageConfig, SerializationFormat};
 
 #[cfg(feature = "fjall")]
 use multihash::Multihash;
@@ -58,7 +58,7 @@ async fn main() -> Result<()> {
 
     // Create temporary directory for this example
     let temp_dir = TempDir::new()
-        .map_err(|e| atmos::AtmosError::mst(format!("Failed to create temp dir: {}", e)))?;
+        .map_err(|e| atmst::AtmosError::mst(format!("Failed to create temp dir: {}", e)))?;
     let storage_path = temp_dir.path();
 
     println!("📁 Storage path: {}\n", storage_path.display());
